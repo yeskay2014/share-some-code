@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+<link rel="stylesheet" href="http://code.jquery.com/mobile/latest/jquery.mobile.css" />
+<script src="http://code.jquery.com/jquery-latest.js" type="text/javascript"></script>
+<script src="http://code.jquery.com/mobile/latest/jquery.mobile.js"     type="text/javascript"></script>
+<script src="http://ajax.microsoft.com/ajax/jquery.templates/beta1/jquery.tmpl.min.js" type="text/javascript"></script>
+<!-- Template for listing Suppliers: navigate to products via related uri-->
+<script id="suppliersTmpl" type="text/x-jquery-tmpl">
+       <li uri="${Products.__deferred.uri}" class="links"> <a href="#page2">${CompanyName}</a></li>
+</script>
+<!-- Template for listing Products: navigate to order via a related uri -->
+<script id="productsTmpl" type="text/x-jquery-tmpl">
+     <li data-role="list-divider" >${ProductName}<span class="ui-li-count">${UnitPrice}</span></li>
+     <li uri="${Order_Details.__deferred.uri}" class="links"> <a href="#page3"><span class"ui-li-content">
+        <p>Qunantity Per Unit:  ${QuantityPerUnit}</p>
+        <p>Available Stock   :  ${UnitsInStock}</p>
+     </span></a></li>
+</script>
+<!-- Template for listing Orders -->
+<script id="ordersTmpl" type="text/x-jquery-tmpl">
+     <li data-role="list-divider" >Order ${OrderID}</li>
+     <li> <span class"ui-li-content">
+        <p>Product ID : ${ProductID}</p>
+        <p>Unit Price : ${UnitPrice}</p>
+        <p>Quantity   : ${Quantity}</p>
+        <p>Discount   : ${Discount}</p>
+     </span></li>
+</script>
+<script type="text/javascript">
+        var jsonCallback = "?&$callback=?" + "&$format=json";
+        var query = "http://services.odata.org/Northwind/Northwind.svc/" + "Suppliers" + jsonCallback;
+        //OData JSON call for suppliers list
+        function loadSuppliers() {
+                $.ajax({
+                        dataType : "jsonp",
+                        url : query,
+                        success : function(result) {
+                                $("#suppliers").empty();
+                                $("#suppliersTmpl").tmpl(result.d.results).appendTo("#suppliers");
+                                $('#suppliers').listview('refresh');
+                                $(".links").click(function() { listProducts(this.attributes.uri.value)});
+                        }
+                })
+        }
+
+        //OData JSON call for a list of suppliers product details
+        function listProducts(uri) {
+                $.ajax({
+                        dataType : "jsonp",
+                        url : uri + jsonCallback,
+                        success : function(result) {
+                                $("#products").empty();
+                                $("#productsTmpl").tmpl(result.d.results).appendTo("#products");
+                                $('#products').listview('refresh');
+                                $(".links").click(function() { orderDetails(this.attributes.uri.value); });
+                        }
+                })
+        };
+
+        //OData JSON call for products order details
+        function orderDetails(uri) {
+                $.ajax({
+                        dataType : "jsonp",
+                        url : uri + jsonCallback,
+                        success : function(result) {
+                                $("#orders").empty();
+                                $("#ordersTmpl").tmpl(result.d.results).appendTo("#orders");
+                                $("#orders").listview('refresh');
+                        }
+                });
+        }
+
+        $(document).ready(loadSuppliers());
+</script>
+</head>
+<body>
+        <!-- Start of first page -->
+        <div data-role="page" id="page1" data-theme="c">
+                <div data-role="header" data-theme="b">
+                        <h1>Suppliers</h1>
+                </div>
+                <ul data-role="listview" data-inset="true" data-dividertheme="b" id="suppliers"></ul>
+        </div>
+        <!-- Start of second page -->
+        <div data-role="page" id="page2" data-theme="c">
+                <div data-role="header" data-theme="b">
+                        <h1>Products</h1>
+                        <a href="#page1" data-transition="slide" data-icon="back">Back</a>
+                        <a href="#page1" data-icon="home" data-iconpos="notext" data-direction="reverse" class="ui-btn-right">Home</a>
+                </div>
+                <ul data-role="listview" data-inset="true" data-dividertheme="b"
+                        id="products"></ul>
+        </div>
+        <!-- Start of first third -->
+        <div data-role="page" id="page3" data-theme="c">
+                <div data-role="header" data-theme="b" data-add-back-btn="true">
+                        <h1>Order Details</h1>
+                        <a href="#page2" data-transition="slide" data-icon="back">Back</a>
+                        <a href="#page1" data-icon="home" data-iconpos="notext" data-direction="reverse" class="ui-btn-right jqm-home">Home</a>
+                </div>
+                <ul data-role="listview" data-inset="true" data-dividertheme="b" id="orders"></ul>
+        </div>
+</body>
+</html>
