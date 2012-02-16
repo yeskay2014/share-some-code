@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html><head>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge' />
+    <title>SAPUI5 Master Slave</title>
+
+    <script id='sap-ui-bootstrap' type='text/javascript'
+        src='http://nplhost.mysap.com:8042/sapui5/sapui5-static/resources/sap-ui-core.js'
+        data-sap-ui-theme="sap_platinum"
+        data-sap-ui-libs='sap.ui.commons,sap.ui.ux3,sap.ui.table'></script>
+
+	<script type="text/javascript">
+
+		var oModel = new sap.ui.model.odata.ODataModel("http://services.odata.org/Northwind/Northwind.svc/");
+		sap.ui.getCore().setModel(oModel);
+
+		// Customers table
+		var oTable = new sap.ui.table.DataTable({
+			title : "Customers",
+			width : "100%",
+			visibleRowCount : 5,
+			selectionMode : sap.ui.table.SelectionMode.Single,
+			editable : false
+		});
+
+	    oTable.setExpandedVisibleRowCount(20);
+		oTable.addColumn(new sap.ui.table.Column({
+			label: new sap.ui.commons.Label({text: "Customer ID"}),
+			template: new sap.ui.commons.TextField({value:"{CustomerID}"})
+		}));
+		oTable.addColumn(new sap.ui.table.Column({
+			label: new sap.ui.commons.Label({text: "Company Name"}),
+			template: new sap.ui.commons.TextField({value:"{CompanyName}"})
+		}));
+		oTable.addColumn(new sap.ui.table.Column({
+			label: new sap.ui.commons.Label({text: "Contact Name"}),
+			template: new sap.ui.commons.TextField({value:"{ContactName}"})
+		}));
+
+		oTable.bindRows("Customers");
+		oTable.placeAt("master");
+
+		// Customer details
+		var oCustomerDetails = new sap.ui.commons.layout.MatrixLayout();
+		oCustomerDetails.setLayoutFixed(false);
+
+
+		oCustomerDetails.createRow(
+				new sap.ui.commons.Label({text:"Company Name", width:"100px"}),
+				new sap.ui.commons.TextField({editable:false, width:"200px", value : "{CompanyName}"})
+			);
+
+		oCustomerDetails.createRow(
+				new sap.ui.commons.Label({text:"Contact Name", width:"100px"}),
+				new sap.ui.commons.TextField({editable:false, width:"200px", value : "{ContactName}"})
+			);
+
+
+	    oCustomerDetails.createRow(
+			    new sap.ui.commons.Label({text:"Contact Title", width:"100px"}),
+				new sap.ui.commons.TextField({editable:false, width:"200px", value : "{ContactTitle}"})
+		);
+
+
+
+		oCustomerDetails.createRow(
+				new sap.ui.commons.Label({text:"Address", width:"100px"}),
+				new sap.ui.commons.TextField({editable:false, width:"150px", value : "{Address}"})
+			);
+
+
+		oCustomerDetails.createRow(
+				new sap.ui.commons.Label({text:"City", width:"100px"}),
+				new sap.ui.commons.TextField({editable:false, width:"150px", value : "{City}"})
+			);
+
+
+		oCustomerDetails.createRow(
+				new sap.ui.commons.Label({text:"Postal Code", width:"100px"}),
+				new sap.ui.commons.TextField({editable:false, width:"150px", value : "{PostalCode}"})
+			);
+
+		oCustomerDetails.createRow(
+				new sap.ui.commons.Label({text:"Country", width:"100px"}),
+				new sap.ui.commons.TextField({editable:false, width:"150px", value : "{Country}"})
+			);
+
+
+		oCustomerDetails.placeAt("detail1");
+
+		// orders table
+		var oTable2 = new sap.ui.table.DataTable({
+			title : "Orders",
+			width : "100%",
+			visibleRowCount : 5,
+			selectionMode : sap.ui.table.SelectionMode.Single,
+			editable : false
+		});
+
+		oTable2.addColumn(new sap.ui.table.Column({
+			label: new sap.ui.commons.Label({text: "Customer ID"}),
+			template: new sap.ui.commons.TextField({value:"{CustomerID}"})
+		}));
+
+		oTable2.addColumn(new sap.ui.table.Column({
+			label: new sap.ui.commons.Label({text: "Order Number"}),
+			template: new sap.ui.commons.TextField({value:"{OrderID}"})
+		}));
+
+		oTable2.addColumn(new sap.ui.table.Column({
+			label: new sap.ui.commons.Label({text: "EmployeeID"}),
+			template: new sap.ui.commons.TextField({value:"{EmployeeID}"})
+		}));
+
+
+		//oTable2.bindRows("Orders");
+		oTable2.placeAt("detail2");
+
+		oTable.attachRowSelect(function(oEvent){
+			// get the binding context of the first selected row
+			var selectedRowContext = oEvent.getParameter("rowContext");
+			var selectedCustomerID = oModel.getProperty("CustomerID", selectedRowContext);
+
+            oCustomerDetails.bindContext(selectedRowContext);
+
+            // Bind association
+            var selectedCustomerIDOrders = 	selectedRowContext + "/Orders";
+			oTable2.bindRows(selectedCustomerIDOrders)
+
+			// filter orders by CustomerID
+			//var listBinding = oTable2.getBinding();
+			//var oFilter = new sap.ui.model.Filter("CustomerID", sap.ui.model.FilterOperator.EQ, selectedCustomerID);
+			//listBinding.filter([oFilter]);
+
+
+		});
+
+
+	</script>
+
+</head>
+
+<body class="sapUiBody">
+
+	<div id="master"></div>
+	<p></p>
+	<div id="detail1"></div>
+	<p></p>
+
+	<div id="detail2"></div>
+
+</body>
+</html></html>
