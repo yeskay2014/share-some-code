@@ -8,7 +8,7 @@
         data-sap-ui-theme="sap_platinum"
         data-sap-ui-libs='sap.ui.commons,sap.ui.ux3,sap.ui.table'></script>
 
-	<script type="text/javascript">
+    <script type="text/javascript">
 
 		var oModel = new sap.ui.model.odata.ODataModel("http://services.odata.org/Northwind/Northwind.svc/");
 		sap.ui.getCore().setModel(oModel);
@@ -22,7 +22,7 @@
 			editable : false
 		});
 
-	    oTable.setExpandedVisibleRowCount(20);
+    oTable.setExpandedVisibleRowCount(20);
 		oTable.addColumn(new sap.ui.table.Column({
 			label: new sap.ui.commons.Label({text: "Customer ID"}),
 			template: new sap.ui.commons.TextField({value:"{CustomerID}"})
